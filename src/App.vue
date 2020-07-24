@@ -1,28 +1,34 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Table :users="users"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+  import Table from './components/Table'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  export default {
+    name: 'App',
+    components: {
+      Table
+    },
+    data: () => ({
+      url: 'http://vuetask.kih.ru/api.php',
+    }),
+    computed: {
+      users() {
+        let users = this.$store.getters.GET_USERS
+        return users.sort((userA, userB) => {
+          return userA.firstName < userB.firstName ? -1 : 1
+        })
+      }
+    },
+    beforeMount() {
+      this.$store.dispatch('REQUEST_USERS', this.url)
+    },
   }
-}
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
