@@ -12,20 +12,17 @@ export default new Vuex.Store ({
     SET_USERS (state, users) {
       state.users = users
     },
-
     ADD_USER (state, user) {
       state.users.push(user);
     },
-
-    // REMOVE_FROM_CARD(state, index) {
-    //   state.cart.splice(index, 1);
-    // },
-    // DECREMENT_ITEM_CART(state, index) {
-    //   state.cart[index].quantity -= 1;
-    // },
-    // INCREMENT_ITEM_CART(state, index) {
-    //   state.cart[index].quantity += 1;
-    // },
+    UPDATE_USER(state, user) {
+      const idx = state.users.findIndex(item => item.id === user.id);
+      state.users[idx] = user
+    },
+    REMOVE_USER(state, user) {
+      const idx = state.users.findIndex(item => item.id === user.id);
+      state.users.splice(idx, 1)
+    }
   },
 
   actions: {
@@ -36,21 +33,29 @@ export default new Vuex.Store ({
         commit('SET_USERS', users)
       }
       catch (error) {
-        console.error(error);
-        console.error('error');
+        console.error(error)
       }
     },
   },
 
   getters: {
     GET_USERS(state) {
-      return state.users;
+      return state.users
     },
-    // GET_TOTAL_COST(state) {
-    //   let totalCost = state.cart.reduce((total, cardFromCart)=> {
-    //     return total + (cardFromCart.quantity * cardFromCart.price);
-    //   }, 0);
-    //   return Math.ceil(totalCost * 100) / 100;
-    // }
+    GET_AGE_DISTRIBUTION_IN_DEGREES(state) {
+      let ageDistribution = [0, 0, 0, 0, 0]
+      state.users.forEach(({ age }) => {
+        if (age < 20) ageDistribution[0] += 1
+        else if (age < 30) ageDistribution[1] += 1
+        else if (age < 40) ageDistribution[2] += 1
+        else if (age < 50) ageDistribution[3] += 1
+        else ageDistribution[4] += 1
+      })
+
+      return ageDistribution.map((count, idx) => {
+        let num = ageDistribution[idx] / state.users.length * 100
+        return Math.round((num + 0.00001) * 100) / 100
+      })
+    }
   },
 })

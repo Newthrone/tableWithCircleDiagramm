@@ -1,20 +1,27 @@
 <template>
   <div id="app">
-    <Table :users="users"/>
+    <template v-if="users.length">
+      <Table :users="users"/>
+      <PieChart/>
+    </template>
   </div>
 </template>
 
 <script>
   import Table from './components/Table'
+  import PieChart from './components/PieChart'
 
   export default {
     name: 'App',
     components: {
-      Table
+      Table,
+      PieChart
     },
-    data: () => ({
-      url: 'http://vuetask.kih.ru/api.php',
-    }),
+    data() {
+      return {
+        url: 'http://vuetask.kih.ru/api.php',
+      }
+    },
     computed: {
       users() {
         let users = this.$store.getters.GET_USERS

@@ -5,7 +5,7 @@
       <input type="text"
              name="name"
              id="name"
-             pattern="[A-Za-zА-Яа-яЁё]+\s{1,5}[A-Za-zА-Яа-яЁё]+$"
+             pattern="[A-Za-zА-Яа-яЁё']+\s{1,5}[A-Za-zА-Яа-яЁё']+$"
              v-model="name"
              required
       >
@@ -29,8 +29,12 @@
              required
       >
       <small>Ведите email адрес (пример: "doc@mail.ru")</small>
-
-      <button type="submit">Добавить данные</button>
+      <div class="buttonHolder">
+        <button type="submit">
+          <slot></slot>
+        </button>
+        <button type="button" @click="close">Отмена</button>
+      </div>
     </form>
   </div>
 </template>
@@ -41,35 +45,18 @@ export default {
   props: {
     user: {
       type: Object,
-      default: () => ({
-        id: {
-          type: Number,
-          default: parseInt(new Date(), 10)
-        },
-        firstName: {
-          type: String,
-          default: ''
-        },
-        lastName: {
-          type: String,
-          default: ''
-        },
-        age: {
-          type: [Number, null],
-          default: null
-        },
-        email: {
-          type: String,
-          default: ''
-        }
-      })
+      required: true
+    },
+    isNewUser: {
+      type: Boolean,
+      required: true
     }
   },
-  data: () => ({
-    name: ''
-    // age: null,
-    // email: ''
-  }),
+  data() {
+    return {
+      name: `${this.user.firstName} ${this.user.lastName}`.trim()
+    }
+  },
   computed: {
     posSpace() {
       return this.name.indexOf(' ')
@@ -81,19 +68,15 @@ export default {
       return this.name.slice(this.posSpace + 1)
     }
   },
-  created() {
-    this.$store.commit('ADD_USER', this.user)
-    // console.log(this.$store.commit('ADD_USER'));
-  },
   methods: {
     submitted() {
-      console.log(this.$store.commit('ADD_USER'));
-      console.log(this.name);
-      console.log(this.user.firstName);
-      console.log(this.user.lastName);
-      console.log(this.user.age);
-      console.log(this.user.email);
-      // {"id":1,"firstName": this.firstName,"lastName":this.lastName,"age":this.age,"email":this.email}
+      Object.assign(this.user, {firstName: this.firstName, lastName: this.lastName})
+      if (this.isNewUser) this.$store.commit('ADD_USER', this.user)
+      else this.$store.commit('UPDATE_USER', this.user)
+      this.close()
+    },
+    close() {
+      this.$emit('closed:form')
     }
   }
 }
@@ -101,8 +84,14 @@ export default {
 
 <style lang="scss" scoped>
   .formHolder {
-    width: 720px;
-    margin: 2rem auto;
+    z-index: 5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    padding: 100px calc(50% - 360px);
+    background: #fff;
   }
 
   form {
@@ -143,9 +132,13 @@ export default {
 
   }
 
+  .buttonHolder {
+    text-align: center;
+  }
+
   button {
     align-self: center;
     padding: 5px 1rem;
-    margin: 1rem 0 0;
+    margin: 1rem 1rem 0;
   }
 </style>
